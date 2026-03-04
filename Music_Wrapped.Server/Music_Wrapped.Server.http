@@ -1,0 +1,6 @@
+@Music_Wrapped.Server_HostAddress = http://localhost:5122
+
+GET {{Music_Wrapped.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="music_wrapped.client/music_wrapped.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="Music_Wrapped.Server/Music_Wrapped.Server.csproj" />
+</Solution>
