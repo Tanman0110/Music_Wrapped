@@ -1,97 +1,220 @@
 import type {
-    GenreStat,
+    AlbumStat,
+    ArtistTrackStat,
+    ListeningProfile,
     SpotifyArtist,
     SpotifyTrack,
-    TrackGenreBreakdown,
+    SummaryStat,
     WrappedData,
 } from "../types/spotifyTypes";
 
-function sortGenreCounts(map: Map<string, number>): GenreStat[] {
-    return Array.from(map.entries())
-        .map(([name, count]) => ({ name, count }))
-        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+function msToMinutesSeconds(ms: number): string {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
-export function computeTopGenresFromArtists(
-    artists: SpotifyArtist[]
-): GenreStat[] {
-    const genreCounts = new Map<string, number>();
-
-    for (const artist of artists) {
-        const genres = Array.isArray(artist.genres) ? artist.genres : [];
-
-        for (const genre of genres) {
-            genreCounts.set(genre, (genreCounts.get(genre) ?? 0) + 1);
-        }
+function average(values: number[]): number {
+    if (values.length === 0) {
+        return 0;
     }
 
-    return sortGenreCounts(genreCounts);
+    const total = values.reduce((sum, value) => sum + value, 0);
+    return total / values.length;
 }
 
-export function computeTrackGenreData(
-    tracks: SpotifyTrack[],
-    artists: SpotifyArtist[]
-): {
-    genreCountsFromTracks: GenreStat[];
-    trackGenreBreakdown: TrackGenreBreakdown[];
-} {
-    const artistGenreMap = new Map<string, string[]>();
-
-    for (const artist of artists) {
-        artistGenreMap.set(
-            artist.id,
-            Array.isArray(artist.genres) ? artist.genres : []
-        );
-    }
-
-    const genreCounts = new Map<string, number>();
-    const trackGenreBreakdown: TrackGenreBreakdown[] = [];
+function computeTopAlbums(tracks: SpotifyTrack[]): AlbumStat[] {
+    const albumMap = new Map<string, AlbumStat>();
 
     for (const track of tracks) {
-        const trackGenres = new Set<string>();
-
-        for (const artist of track.artists) {
-            const genres = artistGenreMap.get(artist.id) ?? [];
-
-            for (const genre of genres) {
-                trackGenres.add(genre);
-            }
+        const albumId = track.album?.id;
+        if (!albumId) {
+            continue;
         }
 
-        for (const genre of trackGenres) {
-            genreCounts.set(genre, (genreCounts.get(genre) ?? 0) + 1);
+        const existing = albumMap.get(albumId);
+
+        if (existing) {
+            existing.trackCount += 1;
+            continue;
         }
 
-        trackGenreBreakdown.push({
-            trackId: track.id,
-            trackName: track.name,
-            artistNames: track.artists.map((a) => a.name),
-            genres: Array.from(trackGenres).sort(),
+        albumMap.set(albumId, {
+            albumId,
+            albumName: track.album.name,
+            artistNames: track.artists.map((artist) => artist.name),
+            imageUrl: track.album.images?.[0]?.url ?? null,
+            spotifyUrl: track.album.external_urls?.spotify ?? null,
+            trackCount: 1,
         });
     }
 
+    return Array.from(albumMap.values()).sort(
+        (a, b) => b.trackCount - a.trackCount || a.albumName.localeCompare(b.albumName)
+    );
+}
+
+function computeTopRecurringArtists(tracks: SpotifyTrack[]): ArtistTrackStat[] {
+    const artistMap = new Map<string, ArtistTrackStat>();
+
+    for (const track of tracks) {
+        for (const artist of track.artists) {
+            const existing = artistMap.get(artist.id);
+
+            if (existing) {
+                existing.trackCount += 1;
+            } else {
+                artistMap.set(artist.id, {
+                    artistId: artist.id,
+                    artistName: artist.name,
+                    trackCount: 1,
+                });
+            }
+        }
+    }
+
+    return Array.from(artistMap.values()).sort(
+        (a, b) => b.trackCount - a.trackCount || a.artistName.localeCompare(b.artistName)
+    );
+}
+
+function computeListeningProfile(params: {
+    uniqueArtistCountFromTracks: number;
+    uniqueAlbumCountFromTracks: number;
+    topRecurringArtistTrackCount: number;
+    totalTracksAnalyzed: number;
+}): ListeningProfile {
+    const {
+        uniqueArtistCountFromTracks,
+        uniqueAlbumCountFromTracks,
+        topRecurringArtistTrackCount,
+        totalTracksAnalyzed,
+    } = params;
+
+    const recurringArtistShare =
+        totalTracksAnalyzed > 0
+            ? topRecurringArtistTrackCount / totalTracksAnalyzed
+            : 0;
+
+    if (recurringArtistShare >= 0.25) {
+        return {
+            title: "Loyal Listener",
+            description:
+                "You come back to the same favorite artists again and again.",
+        };
+    }
+
+    if (uniqueArtistCountFromTracks >= 35 && uniqueAlbumCountFromTracks >= 30) {
+        return {
+            title: "Variety Explorer",
+            description:
+                "Your top tracks span a wide mix of artists and albums.",
+        };
+    }
+
+    if (uniqueAlbumCountFromTracks <= 10) {
+        return {
+            title: "Album Lock-In",
+            description:
+                "A smaller set of albums dominates your top tracks in this time range.",
+        };
+    }
+
     return {
-        genreCountsFromTracks: sortGenreCounts(genreCounts),
-        trackGenreBreakdown,
+        title: "Balanced Rotator",
+        description:
+            "You mix familiar favorites with a healthy spread of artists and albums.",
     };
+}
+
+function buildSummaryStats(params: {
+    totalTracksAnalyzed: number;
+    uniqueArtistCountFromTracks: number;
+    uniqueAlbumCountFromTracks: number;
+    avgTrackDurationMs: number;
+}): SummaryStat[] {
+    return [
+        {
+            label: "Tracks analyzed",
+            value: String(params.totalTracksAnalyzed),
+        },
+        {
+            label: "Unique artists in top tracks",
+            value: String(params.uniqueArtistCountFromTracks),
+        },
+        {
+            label: "Unique albums in top tracks",
+            value: String(params.uniqueAlbumCountFromTracks),
+        },
+        {
+            label: "Avg track length",
+            value: msToMinutesSeconds(params.avgTrackDurationMs),
+        },
+    ];
 }
 
 export function buildWrappedData(
     topTracks: SpotifyTrack[],
     topArtists: SpotifyArtist[]
 ): WrappedData {
-    const topGenres = computeTopGenresFromArtists(topArtists);
-    const { genreCountsFromTracks, trackGenreBreakdown } = computeTrackGenreData(
-        topTracks,
-        topArtists
+    const topAlbums = computeTopAlbums(topTracks);
+    const topRecurringArtists = computeTopRecurringArtists(topTracks);
+
+    const uniqueArtistIds = new Set(
+        topTracks.flatMap((track) => track.artists.map((artist) => artist.id))
     );
+
+    const uniqueAlbumIds = new Set(
+        topTracks
+            .map((track) => track.album?.id)
+            .filter((id): id is string => Boolean(id))
+    );
+
+    const avgTrackDurationMs = Math.round(
+        average(topTracks.map((track) => track.duration_ms ?? 0))
+    );
+
+    const sortedByDuration = [...topTracks].sort(
+        (a, b) => a.duration_ms - b.duration_ms
+    );
+
+    const shortestTrack = sortedByDuration[0] ?? null;
+    const longestTrack =
+        sortedByDuration.length > 0
+            ? sortedByDuration[sortedByDuration.length - 1]
+            : null;
+
+    const totalTracksAnalyzed = topTracks.length;
+    const uniqueArtistCountFromTracks = uniqueArtistIds.size;
+    const uniqueAlbumCountFromTracks = uniqueAlbumIds.size;
+
+    const listeningProfile = computeListeningProfile({
+        uniqueArtistCountFromTracks,
+        uniqueAlbumCountFromTracks,
+        topRecurringArtistTrackCount: topRecurringArtists[0]?.trackCount ?? 0,
+        totalTracksAnalyzed,
+    });
+
+    const summaryStats = buildSummaryStats({
+        totalTracksAnalyzed,
+        uniqueArtistCountFromTracks,
+        uniqueAlbumCountFromTracks,
+        avgTrackDurationMs,
+    });
 
     return {
         topTracks,
         topArtists,
-        topGenres,
-        uniqueGenreCount: topGenres.length,
-        genreCountsFromTracks,
-        trackGenreBreakdown,
+        topAlbums,
+        topRecurringArtists,
+        totalTracksAnalyzed,
+        uniqueArtistCountFromTracks,
+        uniqueAlbumCountFromTracks,
+        avgTrackDurationMs,
+        longestTrack,
+        shortestTrack,
+        summaryStats,
+        listeningProfile,
     };
 }

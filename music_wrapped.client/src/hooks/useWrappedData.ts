@@ -24,6 +24,7 @@ export function useWrappedData(
     const refresh = useCallback(async () => {
         if (!token) {
             setData(null);
+            setError(null);
             return;
         }
 
