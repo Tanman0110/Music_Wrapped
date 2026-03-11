@@ -1,16 +1,65 @@
-export async function getTopTracks(token: string) {
-    const res = await fetch(
-        "https://api.spotify.com/v1/me/top/tracks?limit=10",
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }
-    );
+import type {
+    SpotifyArtist,
+    SpotifyTopItemsResponse,
+    SpotifyTrack,
+    TimeRange,
+} from "../types/spotifyTypes";
+
+const SPOTIFY_API_BASE = "https://api.spotify.com/v1";
+
+async function spotifyFetch<T>(url: string, token: string): Promise<T> {
+    const res = await fetch(url, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
 
     if (!res.ok) {
-        throw new Error("Failed to fetch top tracks");
+        const text = await res.text();
+        throw new Error(`Spotify API failed: ${res.status} ${text}`);
     }
 
-    return res.json();
+    return res.json() as Promise<T>;
+}
+
+export async function getSpotifyMe(token: string) {
+    return spotifyFetch(`${SPOTIFY_API_BASE}/me`, token);
+}
+
+export async function getTopTracks(
+    token: string,
+    timeRange: TimeRange,
+    limit = 50
+): Promise<SpotifyTrack[]> {
+    const params = new URLSearchParams({
+        time_range: timeRange,
+        limit: String(Math.min(limit, 50)),
+        offset: "0",
+    });
+
+    const data = await spotifyFetch<SpotifyTopItemsResponse<SpotifyTrack>>(
+        `${SPOTIFY_API_BASE}/me/top/tracks?${params.toString()}`,
+        token
+    );
+
+    return data.items;
+}
+
+export async function getTopArtists(
+    token: string,
+    timeRange: TimeRange,
+    limit = 50
+): Promise<SpotifyArtist[]> {
+    const params = new URLSearchParams({
+        time_range: timeRange,
+        limit: String(Math.min(limit, 50)),
+        offset: "0",
+    });
+
+    const data = await spotifyFetch<SpotifyTopItemsResponse<SpotifyArtist>>(
+        `${SPOTIFY_API_BASE}/me/top/artists?${params.toString()}`,
+        token
+    );
+
+    return data.items;
 }
