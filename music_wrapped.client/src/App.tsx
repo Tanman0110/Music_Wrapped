@@ -1,58 +1,52 @@
-import { useEffect, useState } from 'react';
-import './App.css';
+import { useState } from "react";
+import { getTopTracks } from "./api/spotifyApi";
+import ConnectSpotifyButton from "./components/ConnectSpotifyButton";
+import Callback from "./pages/Callback";
 
-interface Forecast {
-    date: string;
-    temperatureC: number;
-    temperatureF: number;
-    summary: string;
+async function fetchSpotifyMe(token: string) {
+    const res = await fetch("https://api.spotify.com/v1/me", {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error(`Spotify /me failed: ${res.status}`);
+    return res.json();
 }
 
-function App() {
-    const [forecasts, setForecasts] = useState<Forecast[]>();
+export default function App() {
+    const [token, setToken] = useState<string | null>(null);
+    const [meName, setMeName] = useState<string | null>(null);
 
-    useEffect(() => {
-        populateWeatherData();
-    }, []);
+    const path = window.location.pathname;
 
-    const contents = forecasts === undefined
-        ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
-        : <table className="table table-striped" aria-labelledby="tableLabel">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temp. (C)</th>
-                    <th>Temp. (F)</th>
-                    <th>Summary</th>
-                </tr>
-            </thead>
-            <tbody>
-                {forecasts.map(forecast =>
-                    <tr key={forecast.date}>
-                        <td>{forecast.date}</td>
-                        <td>{forecast.temperatureC}</td>
-                        <td>{forecast.temperatureF}</td>
-                        <td>{forecast.summary}</td>
-                    </tr>
-                )}
-            </tbody>
-        </table>;
+    if (path === "/callback") {
+        return (
+            <Callback
+                onToken={async (t) => {
+                    setToken(t);
+
+                    const me = await fetchSpotifyMe(t);
+                    setMeName(me.display_name ?? me.id);
+
+                    const tracks = await getTopTracks(t);
+                    console.log("Top Tracks:", tracks);
+                }}
+            />
+        );
+    }
 
     return (
-        <div>
-            <h1 id="tableLabel">Weather forecast</h1>
-            <p>This component demonstrates fetching data from the server.</p>
-            {contents}
+        <div style={{ padding: 24 }}>
+            <h1>Music Wrapped</h1>
+
+            {!token ? (
+                <ConnectSpotifyButton />
+            ) : (
+                <div>
+                    <div>Connected as: {meName ?? "Loading profile..."}</div>
+                    <button onClick={() => { setToken(null); setMeName(null); }}>
+                        Disconnect
+                    </button>
+                </div>
+            )}
         </div>
     );
-
-    async function populateWeatherData() {
-        const response = await fetch('weatherforecast');
-        if (response.ok) {
-            const data = await response.json();
-            setForecasts(data);
-        }
-    }
 }
-
-export default App;
