@@ -1,7 +1,7 @@
 import { useState } from "react";
-import ConnectSpotifyButton from "./components/ConnectSpotifyButton";
 import Callback from "./pages/Callback";
 import WrappedDashboard from "./components/WrappedDashboard";
+import Landing from "./pages/Landing";
 
 async function fetchSpotifyMe(token: string) {
     const res = await fetch("https://api.spotify.com/v1/me", {
@@ -38,17 +38,9 @@ export default function App() {
         );
     }
 
-    return (
-        <div style={{ padding: 24 }}>
-            {!token ? (
-                <>
-                    <h1>Music Wrapped</h1>
-                    <p>Connect your Spotify account to see your listening insights.</p>
-                    <ConnectSpotifyButton />
-                </>
-            ) : (
-                <WrappedDashboard token={token} meName={meName} />
-            )}
-        </div>
-    );
+    if (!token) {
+        return <Landing />;
+    }
+
+    return <WrappedDashboard token={token} meName={meName} />;
 }
