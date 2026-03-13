@@ -7,6 +7,12 @@ import type {
 
 const SPOTIFY_API_BASE = "https://api.spotify.com/v1";
 
+export type SpotifyUser = {
+    id: string;
+    display_name: string | null;
+    email?: string;
+};
+
 async function spotifyFetch<T>(url: string, token: string): Promise<T> {
     const res = await fetch(url, {
         headers: {
@@ -22,8 +28,8 @@ async function spotifyFetch<T>(url: string, token: string): Promise<T> {
     return res.json() as Promise<T>;
 }
 
-export async function getSpotifyMe(token: string) {
-    return spotifyFetch(`${SPOTIFY_API_BASE}/me`, token);
+export async function getSpotifyUser(token: string): Promise<SpotifyUser> {
+    return spotifyFetch<SpotifyUser>(`${SPOTIFY_API_BASE}/me`, token);
 }
 
 export async function getTopTracks(

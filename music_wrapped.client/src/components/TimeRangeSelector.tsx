@@ -1,33 +1,71 @@
 import type { TimeRange } from "../types/spotifyTypes";
+import "./WrappedDashboard.css";
 
 type Props = {
-    value: TimeRange;
+    value: TimeRange | null;
     onChange: (value: TimeRange) => void;
+    meName?: string | null;
 };
 
-export default function TimeRangeSelector({ value, onChange }: Props) {
+const OPTIONS: {
+    value: TimeRange;
+    label: string;
+    description: string;
+}[] = [
+        {
+            value: "short_term",
+            label: "Past Month",
+            description: "A snapshot of your recent listening habits.",
+        },
+        {
+            value: "medium_term",
+            label: "6 Months",
+            description: "A broader look at your recent favorites.",
+        },
+        {
+            value: "long_term",
+            label: "All Time",
+            description: "The biggest-picture view of your music taste.",
+        },
+    ];
+
+export default function TimeRangeSelector({ value, onChange, meName }: Props) {
     return (
-        <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
-            <button
-                onClick={() => onChange("short_term")}
-                disabled={value === "short_term"}
-            >
-                Past Month
-            </button>
+        <section className="range-screen">
+            <div className="range-screen__noise" />
+            <div className="range-screen__content">
+                <p className="range-screen__eyebrow">
+                    {meName ? `Connected as ${meName}` : "Spotify connected"}
+                </p>
 
-            <button
-                onClick={() => onChange("medium_term")}
-                disabled={value === "medium_term"}
-            >
-                6 Months
-            </button>
+                <h1 className="range-screen__title">
+                    How far back would you like to go?
+                </h1>
 
-            <button
-                onClick={() => onChange("long_term")}
-                disabled={value === "long_term"}
-            >
-                All Time
-            </button>
-        </div>
+                <p className="range-screen__subtitle">
+                    Choose the time range for your music recap.
+                </p>
+
+                <div className="range-screen__grid">
+                    {OPTIONS.map((option) => {
+                        const active = value === option.value;
+
+                        return (
+                            <button
+                                key={option.value}
+                                type="button"
+                                className={`range-card ${active ? "range-card--active" : ""}`}
+                                onClick={() => onChange(option.value)}
+                            >
+                                <span className="range-card__label">{option.label}</span>
+                                <span className="range-card__description">
+                                    {option.description}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+        </section>
     );
 }

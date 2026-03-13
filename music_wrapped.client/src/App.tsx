@@ -1,25 +1,15 @@
 import { useState } from "react";
+import Landing from "./pages/Landing";
 import Callback from "./pages/Callback";
 import WrappedDashboard from "./components/WrappedDashboard";
-import Landing from "./pages/Landing";
-
-async function fetchSpotifyMe(token: string) {
-    const res = await fetch("https://api.spotify.com/v1/me", {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
-
-    if (!res.ok) {
-        throw new Error(`Spotify /me failed: ${res.status}`);
-    }
-
-    return res.json();
-}
+import TimeRangeSelector from "./components/TimeRangeSelector";
+import { getSpotifyUser } from "./api/spotifyApi";
+import type { TimeRange } from "./types/spotifyTypes";
 
 export default function App() {
     const [token, setToken] = useState<string | null>(null);
     const [meName, setMeName] = useState<string | null>(null);
+    const [selectedRange, setSelectedRange] = useState<TimeRange | null>(null);
 
     const path = window.location.pathname;
 
@@ -27,10 +17,10 @@ export default function App() {
         return (
             <Callback
                 onToken={async (t) => {
-                    const me = await fetchSpotifyMe(t);
+                    const user = await getSpotifyUser(t);
 
                     setToken(t);
-                    setMeName(me.display_name ?? me.id);
+                    setMeName(user.display_name ?? user.id ?? "Spotify User");
 
                     window.history.replaceState({}, document.title, "/");
                 }}
@@ -42,5 +32,23 @@ export default function App() {
         return <Landing />;
     }
 
-    return <WrappedDashboard token={token} meName={meName} />;
+    if (!selectedRange) {
+        return (
+            <TimeRangeSelector
+                value={null}
+                onChange={(range) => setSelectedRange(range)}
+                meName={meName}
+            />
+        );
+    }
+
+    return (
+        <WrappedDashboard
+            key={selectedRange}
+            token={token}
+            userName={meName}
+            initialRange={selectedRange}
+            onStartOver={() => setSelectedRange(null)}
+        />
+    );
 }

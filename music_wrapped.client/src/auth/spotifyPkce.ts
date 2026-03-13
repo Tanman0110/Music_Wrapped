@@ -70,7 +70,6 @@ export async function exchangeCodeForToken(code: string): Promise<{ accessToken:
         throw new Error(`Token exchange failed: ${res.status} ${text}`);
     }
 
-    // You want reconnect if they leave — keep token only in memory.
     sessionStorage.removeItem(VERIFIER_KEY);
 
     const data = await res.json();

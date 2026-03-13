@@ -14,7 +14,8 @@ type UseWrappedDataResult = {
 
 export function useWrappedData(
     token: string | null,
-    initialRange: TimeRange = "medium_term"
+    initialRange: TimeRange = "medium_term",
+    enabled = true
 ): UseWrappedDataResult {
     const [timeRange, setTimeRange] = useState<TimeRange>(initialRange);
     const [data, setData] = useState<WrappedData | null>(null);
@@ -22,9 +23,10 @@ export function useWrappedData(
     const [error, setError] = useState<string | null>(null);
 
     const refresh = useCallback(async () => {
-        if (!token) {
+        if (!token || !enabled) {
             setData(null);
             setError(null);
+            setLoading(false);
             return;
         }
 
@@ -45,11 +47,15 @@ export function useWrappedData(
         } finally {
             setLoading(false);
         }
-    }, [token, timeRange]);
+    }, [token, timeRange, enabled]);
 
     useEffect(() => {
+        if (!enabled) {
+            return;
+        }
+
         void refresh();
-    }, [refresh]);
+    }, [refresh, enabled]);
 
     return {
         data,
