@@ -33,7 +33,7 @@ type OrbRuntime = {
 const ORB_COUNT = 9;
 const MAX_POINTER_SPEED = 1;
 const MAX_ORB_PUSH = 1;
-const spotifyLogo = "/Spotify_Primary_Logo_RGB_White.png";
+const spotifyLogo = "/Spotify_Full_Logo_RGB_White.png";
 const githubUrl = "https://github.com/tanman0110";
 
 function clamp(value: number, min: number, max: number) {
@@ -333,7 +333,9 @@ export default function Landing() {
             />
 
             <main className="landing-content">
-                <p className="landing-kicker">Spotify-powered listening recap</p>
+                <p className="landing-kicker">
+                    This is an independent third-party application and is not affiliated with, endorsed by, or sponsored by Spotify.
+                </p>
 
                 <h1 className="landing-title">
                     Welcome to your

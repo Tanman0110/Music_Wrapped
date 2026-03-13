@@ -62,7 +62,7 @@
     position: absolute;
     top: 2rem;
     left: 2rem;
-    width: 42px;
+    width: 96px;
     height: auto;
     z-index: 3;
     opacity: 0.92;
@@ -181,7 +181,7 @@
     .landing-spotify-logo {
         top: 1.25rem;
         left: 1.25rem;
-        width: 36px;
+        width: 76px;
     }
 
     .landing-content {
