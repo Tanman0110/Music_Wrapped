@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { exchangeCodeForToken } from "../auth/spotifyPkce";
+import LoadingScreen from "../components/LoadingScreen";
 
 export default function Callback({
     onToken,
@@ -18,8 +19,13 @@ export default function Callback({
             const code = params.get("code");
             const err = params.get("error");
 
-            if (err) throw new Error(err);
-            if (!code) throw new Error("Missing code in callback URL");
+            if (err) {
+                throw new Error(err);
+            }
+
+            if (!code) {
+                throw new Error("Missing code in callback URL");
+            }
 
             const { accessToken } = await exchangeCodeForToken(code);
             await onToken(accessToken);
@@ -29,8 +35,31 @@ export default function Callback({
     }, [onToken]);
 
     if (error) {
-        return <div>Spotify auth failed: {error}</div>;
+        return (
+            <div
+                style={{
+                    minHeight: "100vh",
+                    display: "grid",
+                    placeItems: "center",
+                    background:
+                        "linear-gradient(180deg, #0e0e0e 0%, #121212 50%, #0a0a0a 100%)",
+                    color: "#fff",
+                    padding: "2rem",
+                    textAlign: "center",
+                }}
+            >
+                <div>
+                    <h2 style={{ marginBottom: "0.75rem" }}>Spotify auth failed</h2>
+                    <p style={{ opacity: 0.8, margin: 0 }}>{error}</p>
+                </div>
+            </div>
+        );
     }
 
-    return <h2>Connecting to Spotify...</h2>;
+    return (
+        <LoadingScreen
+            title="Retrieving your listening data"
+            subtitle="We’re pulling together your top artists, tracks, albums, and listening trends."
+        />
+    );
 }
