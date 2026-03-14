@@ -25,6 +25,7 @@ type Slide = {
     content?: React.ReactNode;
 };
 
+// Spotify logo on main page
 const spotifyIcon = "/Spotify_Primary_Logo_RGB_White.png";
 function formatDuration(ms: number): string {
     const totalSeconds = Math.floor(ms / 1000);
@@ -92,6 +93,7 @@ function getTopArtistMap(topArtists: SpotifyArtist[]) {
     return new Map(topArtists.map((artist) => [artist.id, artist]));
 }
 
+// Wrapped Slides
 function buildSlides(
     data: WrappedData,
     userName: string | null,
@@ -105,6 +107,7 @@ function buildSlides(
     const topArtistMap = getTopArtistMap(data.topArtists);
 
     return [
+        //Listening Profile Slide 1
         {
             id: "listening-profile",
             kind: "section",
@@ -127,6 +130,7 @@ function buildSlides(
                 </div>
             ),
         },
+        // Quick Stats Slides 2-3
         {
             id: "chapter-quick-stats",
             kind: "chapter",
@@ -150,6 +154,7 @@ function buildSlides(
                 </div>
             ),
         },
+        // Highlights slides 4-5
         {
             id: "chapter-highlights",
             kind: "chapter",
@@ -327,6 +332,7 @@ function buildSlides(
                 </div>
             ),
         },
+        // Top Artist Slides 6-7
         {
             id: "chapter-top-artists",
             kind: "chapter",
@@ -373,6 +379,7 @@ function buildSlides(
                 </div>
             ),
         },
+        // Top Tracks Slides 8-9
         {
             id: "chapter-top-tracks",
             kind: "chapter",
@@ -422,6 +429,7 @@ function buildSlides(
                 </div>
             ),
         },
+        // Top ALbums Slides 10-11
         {
             id: "chapter-top-albums",
             kind: "chapter",
@@ -474,6 +482,7 @@ function buildSlides(
                 </div>
             ),
         },
+        // Recurring Artists Slides 12-13
         {
             id: "chapter-recurring-artists",
             kind: "chapter",
@@ -527,6 +536,7 @@ function buildSlides(
                 </div>
             ),
         },
+        // Final Overview Slides 14-15
         {
             id: "chapter-overview",
             kind: "chapter",

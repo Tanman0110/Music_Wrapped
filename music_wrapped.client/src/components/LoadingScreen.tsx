@@ -5,6 +5,7 @@ type Props = {
     subtitle?: string;
 };
 
+// Loading screen after callback from spotify/after time range selection
 export default function LoadingScreen({ title, subtitle }: Props) {
     return (
         <section className="loading-screen" aria-live="polite" aria-busy="true">
