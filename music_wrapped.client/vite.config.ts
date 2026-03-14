@@ -47,9 +47,9 @@ const target = env.ASPNETCORE_HTTPS_PORT
         ? env.ASPNETCORE_URLS.split(";")[0]
         : "https://localhost:7167";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     plugins: [plugin()],
-    base: "/Music_Wrapped/",
+    base: mode === "production" ? "/Music_Wrapped/" : "/",
     resolve: {
         alias: {
             "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -67,4 +67,4 @@ export default defineConfig({
             },
         },
     },
-});
+}));
