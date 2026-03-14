@@ -18,6 +18,9 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
-    },
+      },
+      rules: {
+          "@typescript-eslint/triple-slash-reference": "off",
+      }
   },
 ])

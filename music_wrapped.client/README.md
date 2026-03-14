@@ -1,3 +1,25 @@
+____-----_____-----____-----_____-----____-----_____-----_____MUSIC_WRAPPED____-----_____-----____-----_____-----____-----_____-----____-----_____-----
+
+Music Wrapped allows a user to connect there spotify to generate a spotify wrappedesque
+Slideshow during any time of the year and between specific time ranges
+
+NOTE - This application does not have a backend and handles all API calls in the front end due to github pages not being able to host a backend
+
+*****functionality to add*****
+
+- User can connect to their spotify
+- User Selects a time range / Month(s), Year(s)
+- Import top tracks, artists, genre
+- Generates a Spotifyesque Wrapped slideshow
+- User can share/download a select Wrapped page
+- When a user connects their spotify, that information is cached on the local device so the user doesn't have to sign in again.
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

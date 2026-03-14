@@ -1,58 +1,54 @@
-import { useEffect, useState } from 'react';
-import './App.css';
+import { useState } from "react";
+import Landing from "./pages/Landing";
+import Callback from "./pages/Callback";
+import WrappedDashboard from "./components/WrappedDashboard";
+import TimeRangeSelector from "./components/TimeRangeSelector";
+import { getSpotifyUser } from "./api/spotifyApi";
+import type { TimeRange } from "./types/spotifyTypes";
 
-interface Forecast {
-    date: string;
-    temperatureC: number;
-    temperatureF: number;
-    summary: string;
-}
+export default function App() {
+    const [token, setToken] = useState<string | null>(null);
+    const [meName, setMeName] = useState<string | null>(null);
+    const [selectedRange, setSelectedRange] = useState<TimeRange | null>(null);
 
-function App() {
-    const [forecasts, setForecasts] = useState<Forecast[]>();
+    const path = window.location.pathname;
 
-    useEffect(() => {
-        populateWeatherData();
-    }, []);
+    if (path === "/callback") {
+        return (
+            <Callback
+                onToken={async (t) => {
+                    const user = await getSpotifyUser(t);
 
-    const contents = forecasts === undefined
-        ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
-        : <table className="table table-striped" aria-labelledby="tableLabel">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temp. (C)</th>
-                    <th>Temp. (F)</th>
-                    <th>Summary</th>
-                </tr>
-            </thead>
-            <tbody>
-                {forecasts.map(forecast =>
-                    <tr key={forecast.date}>
-                        <td>{forecast.date}</td>
-                        <td>{forecast.temperatureC}</td>
-                        <td>{forecast.temperatureF}</td>
-                        <td>{forecast.summary}</td>
-                    </tr>
-                )}
-            </tbody>
-        </table>;
+                    setToken(t);
+                    setMeName(user.display_name ?? user.id ?? "Spotify User");
+
+                    window.history.replaceState({}, document.title, "/");
+                }}
+            />
+        );
+    }
+
+    if (!token) {
+        return <Landing />;
+    }
+
+    if (!selectedRange) {
+        return (
+            <TimeRangeSelector
+                value={null}
+                onChange={(range) => setSelectedRange(range)}
+                meName={meName}
+            />
+        );
+    }
 
     return (
-        <div>
-            <h1 id="tableLabel">Weather forecast</h1>
-            <p>This component demonstrates fetching data from the server.</p>
-            {contents}
-        </div>
+        <WrappedDashboard
+            key={selectedRange}
+            token={token}
+            userName={meName}
+            initialRange={selectedRange}
+            onStartOver={() => setSelectedRange(null)}
+        />
     );
-
-    async function populateWeatherData() {
-        const response = await fetch('weatherforecast');
-        if (response.ok) {
-            const data = await response.json();
-            setForecasts(data);
-        }
-    }
 }
-
-export default App;
