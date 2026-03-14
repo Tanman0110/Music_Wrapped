@@ -8,7 +8,8 @@ export function redirectToSpotifyLogin() {
         client_id: CLIENT_ID,
         response_type: "code",
         redirect_uri: REDIRECT_URI,
-        scope: "user-read-private user-read-email user-top-read"
+        scope: "user-read-private user-read-email user-top-read",
+        show_dialog: "true"
     });
 
     window.location.href = `${AUTH_ENDPOINT}?${params.toString()}`;
