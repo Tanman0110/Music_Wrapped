@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Landing.css";
 import ConnectSpotifyButton from "../components/ConnectSpotifyButton";
+import spotifyLogo from "../assets/spotify_full_logo_rgb_white.png";
 
 type OrbData = {
     id: number;
@@ -33,7 +34,6 @@ type OrbRuntime = {
 const ORB_COUNT = 9;
 const MAX_POINTER_SPEED = 1;
 const MAX_ORB_PUSH = 1;
-const spotifyLogo = "/Spotify_Full_Logo_RGB_White.png";
 const githubUrl = "https://github.com/tanman0110";
 
 function clamp(value: number, min: number, max: number) {
