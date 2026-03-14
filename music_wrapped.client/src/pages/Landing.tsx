@@ -33,7 +33,7 @@ type OrbRuntime = {
 const ORB_COUNT = 9;
 const MAX_POINTER_SPEED = 1;
 const MAX_ORB_PUSH = 1;
-const spotifyLogo = "/Spotify_Full_Logo_RGB_White.png";
+const spotifyLogo = `${import.meta.env.BASE_URL}spotify-full-logo-white.png`;
 const githubUrl = "https://github.com/tanman0110";
 
 function clamp(value: number, min: number, max: number) {

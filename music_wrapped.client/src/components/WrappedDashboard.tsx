@@ -26,7 +26,7 @@ type Slide = {
 };
 
 // Spotify logo on main page
-const spotifyLogo = `${import.meta.env.BASE_URL}Spotify_Full_Logo_RGB_White.png`;
+const spotifyLogo = `${import.meta.env.BASE_URL}spotify-full-logo-white.png`;
 function formatDuration(ms: number): string {
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
