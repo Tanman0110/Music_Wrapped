@@ -6,14 +6,22 @@ import TimeRangeSelector from "./components/TimeRangeSelector";
 import { getSpotifyUser } from "./api/spotifyApi";
 import type { TimeRange } from "./types/spotifyTypes";
 
+const BASE_URL = import.meta.env.BASE_URL;
+const CALLBACK_PATH = `${BASE_URL}callback`;
+
+function normalizePath(path: string) {
+    return path.endsWith("/") && path !== "/" ? path.slice(0, -1) : path;
+}
+
 export default function App() {
     const [token, setToken] = useState<string | null>(null);
     const [meName, setMeName] = useState<string | null>(null);
     const [selectedRange, setSelectedRange] = useState<TimeRange | null>(null);
 
-    const path = window.location.pathname;
+    const path = normalizePath(window.location.pathname);
+    const callbackPath = normalizePath(CALLBACK_PATH);
 
-    if (path === "/callback") {
+    if (path === callbackPath) {
         return (
             <Callback
                 onToken={async (t) => {
@@ -22,7 +30,7 @@ export default function App() {
                     setToken(t);
                     setMeName(user.display_name ?? user.id ?? "Spotify User");
 
-                    window.history.replaceState({}, document.title, "/");
+                    window.history.replaceState({}, document.title, BASE_URL);
                 }}
             />
         );
