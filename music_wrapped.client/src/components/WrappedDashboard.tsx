@@ -8,6 +8,7 @@ import type {
     TimeRange,
     WrappedData,
 } from "../types/spotifyTypes";
+import spotifyLogo from "../assets/spotify_primary_logo_rgb_white.png";
 
 type Props = {
     token: string;
@@ -25,8 +26,6 @@ type Slide = {
     content?: React.ReactNode;
 };
 
-// Spotify logo on main page
-const spotifyLogo = `${import.meta.env.BASE_URL}spotify-full-logo-white.png`;
 function formatDuration(ms: number): string {
     const totalSeconds = Math.floor(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
