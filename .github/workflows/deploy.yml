@@ -18,6 +18,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: music_wrapped.client
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,6 +31,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: music_wrapped.client/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -40,7 +45,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: music_wrapped.client/dist
 
   deploy:
     environment:
