@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Landing.css";
 import ConnectSpotifyButton from "../components/ConnectSpotifyButton";
+import ReadNotice from "../components/ReadNotice";
 import spotifyLogo from "../assets/spotify_full_logo_rgb_white.png";
 
 type OrbData = {
@@ -80,6 +81,7 @@ export default function Landing() {
     const lastFrameRef = useRef<number | null>(null);
 
     const [orbs] = useState<OrbData[]>(() => createOrbs());
+    const [showReadNotice, setShowReadNotice] = useState(true);
 
     const runtimeRef = useRef<OrbRuntime[]>(createOrbRuntime(orbs));
 
@@ -100,6 +102,14 @@ export default function Landing() {
         speed: 0,
         active: false,
     });
+
+    useEffect(() => {
+        document.body.style.overflow = showReadNotice ? "hidden" : "";
+
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [showReadNotice]);
 
     useEffect(() => {
         let frameId = 0;
@@ -300,70 +310,77 @@ export default function Landing() {
     };
 
     return (
-        <div
-            ref={containerRef}
-            className="landing"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-        >
-            <div className="landing-noise" />
-            <div className="landing-vignette" />
-
-            <div className="smoke-layer" aria-hidden="true">
-                {orbs.map((orb, index) => (
-                    <div
-                        key={orb.id}
-                        ref={(node) => {
-                            orbRefs.current[index] = node;
-                        }}
-                        className="smoke-orb"
-                        style={{
-                            width: `${orb.size}px`,
-                            height: `${orb.size}px`,
-                            opacity: orb.opacity,
-                        }}
-                    />
-                ))}
-            </div>
-
-            <img
-                className="landing-spotify-logo"
-                src={spotifyLogo}
-                alt="Spotify"
+        <>
+            <ReadNotice
+                open={showReadNotice}
+                onContinue={() => setShowReadNotice(false)}
             />
 
-            <main className="landing-content">
-                <p className="landing-kicker">
-                    This is an independent third-party application and is not affiliated with, endorsed by, or sponsored by Spotify.
-                </p>
+            <div
+                ref={containerRef}
+                className={`landing ${showReadNotice ? "landing-open" : ""}`}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+            >
+                <div className="landing-noise" />
+                <div className="landing-vignette" />
 
-                <h1 className="landing-title">
-                    Welcome to your
-                    <span> Music Wrapped</span>
-                </h1>
-
-                <p className="landing-subtitle">
-                    Connect your Spotify account to explore your top tracks,
-                    artists, albums, and listening trends.
-                </p>
-
-                <div className="landing-actions">
-                    <ConnectSpotifyButton />
+                <div className="smoke-layer" aria-hidden="true">
+                    {orbs.map((orb, index) => (
+                        <div
+                            key={orb.id}
+                            ref={(node) => {
+                                orbRefs.current[index] = node;
+                            }}
+                            className="smoke-orb"
+                            style={{
+                                width: `${orb.size}px`,
+                                height: `${orb.size}px`,
+                                opacity: orb.opacity,
+                            }}
+                        />
+                    ))}
                 </div>
-            </main>
 
-            <footer className="landing-footer">
-                <span>Built with React by Tanner Henning-Inman</span>
-                <span className="landing-footer-separator">•</span>
-                <a
-                    href={githubUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="Tanner Henning-Inman GitHub profile"
-                >
-                    GitHub
-                </a>
-            </footer>
-        </div>
+                <img
+                    className="landing-spotify-logo"
+                    src={spotifyLogo}
+                    alt="Spotify"
+                />
+
+                <main className="landing-content">
+                    <p className="landing-kicker">
+                        This is an independent third-party application and is not affiliated with, endorsed by, or sponsored by Spotify.
+                    </p>
+
+                    <h1 className="landing-title">
+                        Welcome to your
+                        <span> Music Wrapped</span>
+                    </h1>
+
+                    <p className="landing-subtitle">
+                        Connect your Spotify account to explore your top tracks,
+                        artists, albums, and listening trends.
+                    </p>
+
+                    <div className="landing-actions">
+                        <ConnectSpotifyButton />
+                    </div>
+                </main>
+
+                <footer className="landing-footer">
+                    <span>Built with React by Tanner Henning-Inman</span>
+                    <span className="landing-footer-separator">•</span>
+                    <a
+                        href={githubUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label="Tanner Henning-Inman GitHub profile"
+                    >
+                        GitHub
+                    </a>
+                </footer>
+            </div>
+        </>
     );
 }
