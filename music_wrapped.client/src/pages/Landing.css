@@ -17,7 +17,12 @@
     display: grid;
     place-items: center;
     cursor: default;
+    transition: filter 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
 }
+
+    .landing.landing-open {
+        filter: grayscale(0.35) brightness(0.45);
+    }
 
 .landing-noise {
     position: absolute;
@@ -34,7 +39,7 @@
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    background: radial-gradient( circle at center, transparent 35%, rgba(0, 0, 0, 0.32) 72%, rgba(0, 0, 0, 0.58) 100% );
+    background: radial-gradient(circle at center, transparent 35%, rgba(0, 0, 0, 0.32) 72%, rgba(0, 0, 0, 0.58) 100%);
 }
 
 .smoke-layer {
@@ -53,7 +58,7 @@
     border-radius: 50%;
     will-change: transform, opacity, left, top;
     transform: translate3d(-50%, -50%, 0);
-    background: radial-gradient( circle at 35% 35%, rgba(120, 255, 170, 0.92) 0%, rgba(30, 215, 96, 0.62) 24%, rgba(30, 215, 96, 0.32) 52%, rgba(30, 215, 96, 0.14) 70%, rgba(30, 215, 96, 0.04) 100% );
+    background: radial-gradient(circle at 35% 35%, rgba(120, 255, 170, 0.92) 0%, rgba(30, 215, 96, 0.62) 24%, rgba(30, 215, 96, 0.32) 52%, rgba(30, 215, 96, 0.14) 70%, rgba(30, 215, 96, 0.04) 100%);
     mix-blend-mode: screen;
     box-shadow: 0 0 50px rgba(30, 215, 96, 0.18), 0 0 140px rgba(30, 215, 96, 0.14), inset 0 0 40px rgba(160, 255, 200, 0.08);
 }
