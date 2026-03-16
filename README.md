@@ -1,4 +1,4 @@
------------------------------------------------***Welcome to your Music Wrapped***-----------------------------------------------
+-----------------------------------------------***Welcome to your Music Wrapped***----------------------------------------------
 
 Music Wrapped is a custom built application that a user can login through Spotify and see a custom "Spotify Wrapped" during any time of the year.
 
